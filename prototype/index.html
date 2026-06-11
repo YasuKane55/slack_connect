@@ -34,7 +34,7 @@
 <body>
 <div id="app"></div>
 <div id="hud"><span class="badge">🟡 <span id="puub">10</span> プーブ</span></div>
-<div id="hint">画面に指を置いた方ヘ すすむ（ぷーぶ君中心）<br>キラキラ/ねこに近づいて ダブルタップ／ぷーぶ君タップでジャンプ</div>
+<div id="hint">指を置いた方へ すすむ（ぷーぶ君中心）<br>ダブルタップ＝つかう／タップ＝ジャンプ／長押し＝表情かえ</div>
 <div id="prompt"></div>
 <div id="start">
   <h1>ぷーぶ君の まち<br><small style="font-size:16px;">ルック&フィール デモ</small></h1>
@@ -132,31 +132,47 @@ for(let i=0;i<40;i++){
 }
 
 // ---------- Puub-kun (billboard sprite) ----------
-function drawPuub(body='#9e3f2a',hand='#f2c14e',cheek='#ff9a8a'){
-  const c=document.createElement('canvas');c.width=256;c.height=300;const x=c.getContext('2d');
+const pCanvas=document.createElement('canvas');pCanvas.width=256;pCanvas.height=300;
+const pctx=pCanvas.getContext('2d');
+let puubOpts={expr:'normal',body:'#9e3f2a',hand:'#f2c14e',cheek:'#ff9a8a'};
+const TAU=Math.PI*2;
+function renderPuub(){
+  const x=pctx,o=puubOpts;x.clearRect(0,0,256,300);
   // body teardrop
-  x.fillStyle=body;
-  x.beginPath();
-  x.arc(128,130,104,0,Math.PI*2); x.fill();
+  x.fillStyle=o.body;
+  x.beginPath();x.arc(128,130,104,0,TAU);x.fill();
   x.beginPath();x.moveTo(60,150);x.quadraticCurveTo(20,250,120,250);x.quadraticCurveTo(70,210,70,165);x.closePath();x.fill();
   // cheek
-  x.fillStyle=cheek;x.globalAlpha=0.8;x.beginPath();x.arc(70,160,16,0,Math.PI*2);x.fill();x.globalAlpha=1;
+  x.fillStyle=o.cheek;x.globalAlpha=0.8;x.beginPath();x.arc(70,160,16,0,TAU);x.fill();x.globalAlpha=1;
   // eye white
-  x.fillStyle='#fff';x.beginPath();x.arc(150,120,52,0,Math.PI*2);x.fill();
-  // pupil
-  x.fillStyle='#111';x.beginPath();x.arc(150,124,30,0,Math.PI*2);x.fill();
-  // crescent highlight (cut)
-  x.fillStyle='#fff';x.beginPath();x.arc(138,112,12,0,Math.PI*2);x.fill();
-  x.fillStyle='#111';x.beginPath();x.arc(144,114,9,0,Math.PI*2);x.fill();
-  x.fillStyle='#fff';x.beginPath();x.arc(160,134,5,0,Math.PI*2);x.fill();
-  // thumbs-up hand (lower right)
-  x.fillStyle=hand;
-  x.beginPath();x.ellipse(205,205,34,24,0.5,0,Math.PI*2);x.fill();
-  x.fillRect(196,170,22,40); // thumb up
-  x.beginPath();x.arc(207,170,11,0,Math.PI*2);x.fill();
-  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
+  x.fillStyle='#fff';x.beginPath();x.arc(150,120,52,0,TAU);x.fill();
+  x.fillStyle='#111';x.strokeStyle='#111';x.lineCap='round';
+  if(o.expr==='happy'){            // にっこり (∪)
+    x.lineWidth=12;x.beginPath();x.arc(150,108,28,0.18*Math.PI,0.82*Math.PI);x.stroke();
+  } else if(o.expr==='wink'){      // ウインク/とじめ (∩)
+    x.lineWidth=12;x.beginPath();x.arc(150,134,26,1.15*Math.PI,1.85*Math.PI);x.stroke();
+  } else if(o.expr==='surprised'){ // びっくり (小さめ瞳+大ハイライト)
+    x.beginPath();x.arc(150,122,19,0,TAU);x.fill();
+    x.fillStyle='#fff';x.beginPath();x.arc(140,112,8,0,TAU);x.fill();
+  } else {                         // ふつう
+    x.beginPath();x.arc(150,124,30,0,TAU);x.fill();
+    x.fillStyle='#fff';x.beginPath();x.arc(138,112,12,0,TAU);x.fill();
+    x.fillStyle='#111';x.beginPath();x.arc(144,114,9,0,TAU);x.fill();
+    x.fillStyle='#fff';x.beginPath();x.arc(160,134,5,0,TAU);x.fill();
+  }
+  // thumbs-up hand
+  x.fillStyle=o.hand;
+  x.beginPath();x.ellipse(205,205,34,24,0.5,0,TAU);x.fill();
+  x.fillRect(196,170,22,40);x.beginPath();x.arc(207,170,11,0,TAU);x.fill();
 }
-const puubMat=new THREE.SpriteMaterial({map:drawPuub(),transparent:true});
+renderPuub();
+const puubTex=new THREE.CanvasTexture(pCanvas);
+puubTex.colorSpace=THREE.SRGBColorSpace;puubTex.wrapS=THREE.RepeatWrapping; // 左右反転用
+const puubMat=new THREE.SpriteMaterial({map:puubTex,transparent:true});
+const EXPRS=['normal','happy','surprised','wink'];let exprI=0;
+function changeExpression(){exprI=(exprI+1)%EXPRS.length;puubOpts.expr=EXPRS[exprI];
+  renderPuub();puubTex.needsUpdate=true;hop=0.4;
+  blip(560,0.08,'square',0.13);setTimeout(()=>blip(760,0.1,'square',0.12),70);}
 const puub=new THREE.Sprite(puubMat);
 puub.scale.set(2.6,3.05,1);puub.position.set(0,1.55,0);scene.add(puub);
 // soft round shadow under puub
@@ -192,15 +208,19 @@ const keys={};addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);addE
 let nearest=null;
 const promptEl=document.getElementById('prompt');
 const el=renderer.domElement;
-const tch={down:false,id:null,x:0,y:0,x0:0,y0:0,t0:0,moved:false};
-let lastTap=0,pendingTap=null;
+const tch={down:false,id:null,x:0,y:0,x0:0,y0:0,t0:0,moved:false,longFired:false};
+let lastTap=0,pendingTap=null,longTimer=null;
 function puubScreen(){const v=puub.position.clone();v.y=1.35;v.project(camera);
   return {x:(v.x*0.5+0.5)*innerWidth,y:(-v.y*0.5+0.5)*innerHeight};}
-el.addEventListener('pointerdown',e=>{initAudio();tch.down=true;tch.id=e.pointerId;
-  tch.x=tch.x0=e.clientX;tch.y=tch.y0=e.clientY;tch.t0=performance.now();tch.moved=false;});
+el.addEventListener('pointerdown',e=>{initAudio();tch.down=true;tch.id=e.pointerId;tch.longFired=false;
+  tch.x=tch.x0=e.clientX;tch.y=tch.y0=e.clientY;tch.t0=performance.now();tch.moved=false;
+  clearTimeout(longTimer);
+  longTimer=setTimeout(()=>{ if(tch.down&&!tch.moved){const ps=puubScreen();
+    if(Math.hypot(tch.x-ps.x,tch.y-ps.y)<120){changeExpression();tch.longFired=true;} } },480);});
 el.addEventListener('pointermove',e=>{if(!tch.down||e.pointerId!==tch.id)return;
-  tch.x=e.clientX;tch.y=e.clientY;if(Math.hypot(tch.x-tch.x0,tch.y-tch.y0)>14)tch.moved=true;});
-function endTouch(e){if(!tch.down||e.pointerId!==tch.id)return;tch.down=false;
+  tch.x=e.clientX;tch.y=e.clientY;if(Math.hypot(tch.x-tch.x0,tch.y-tch.y0)>14){tch.moved=true;clearTimeout(longTimer);}});
+function endTouch(e){if(!tch.down||e.pointerId!==tch.id)return;tch.down=false;clearTimeout(longTimer);
+  if(tch.longFired){tch.longFired=false;return;}
   const dur=performance.now()-tch.t0;
   if(dur<240 && !tch.moved){ const now=performance.now();
     if(now-lastTap<320){ lastTap=0; if(pendingTap){clearTimeout(pendingTap);pendingTap=null;} doAction(); }
@@ -263,8 +283,8 @@ function loop(now){
   const dt=Math.min((now-last)/1000,0.05);last=now;t+=dt;
   // input dir：指を置いた方向（ぷーぶ君が中心・遠いほど速い）
   let ix=0,iz=0;
-  if(tch.down){const ps=puubScreen();let dx=tch.x-ps.x,dy=tch.y-ps.y;const d=Math.hypot(dx,dy);
-    if(d>16){const mag=Math.min(1,d/240);ix=dx/d*mag;iz=dy/d*mag;}}
+  if(tch.down && !tch.longFired){const ps=puubScreen();let dx=tch.x-ps.x,dy=tch.y-ps.y;const d=Math.hypot(dx,dy);
+    if(d>50){const mag=Math.min(1,(d-50)/200);ix=dx/d*mag;iz=dy/d*mag;}}  // 中心付近は“あそび”で誤作動防止
   if(keys['arrowleft']||keys['a'])ix-=1; if(keys['arrowright']||keys['d'])ix+=1;
   if(keys['arrowup']||keys['w'])iz-=1; if(keys['arrowdown']||keys['s'])iz+=1;
   const len=Math.hypot(ix,iz);const moving=len>0.06;
@@ -280,7 +300,8 @@ function loop(now){
   if(celebrate>0){celebrate-=dt; const c=Math.sin((0.6-celebrate)*12); sy+=0.18*Math.max(0,c); sx-=0.1*Math.max(0,c);}
   let jump=0;
   if(hop>0){hop-=dt; const k=Math.sin(Math.max(0,(0.55-hop))/0.55*Math.PI); jump=k*0.75; sx-=0.16*k; sy+=0.22*k;}
-  puub.scale.set(2.6*sx*facing,3.05*sy,1);
+  puubTex.repeat.x=facing; puubTex.offset.x=facing<0?1:0;   // 左右反転（向き）
+  puub.scale.set(2.6*sx,3.05*sy,1);
   puub.position.y=1.55+bob+jump;
   blob.position.set(puub.position.x,0.02,puub.position.z);
   const bs=moving?1+Math.sin(walkPhase)*0.06:1; blob.scale.set(bs,bs,bs);
