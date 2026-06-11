@@ -17,11 +17,46 @@
 - **サイズ目安**：512×640px 程度（透明PNG）。足元に丸影は3D側で付ける
 - **見分けやすさ**：シルエット・テーマ色・**シンボル小物**で一目で誰か分かるように
 
-## 🧑‍🎨 制作方法（どれでもOK・一貫性が大事）
-1. デザイナー本人が描く（世界観を一番出せる）
-2. イラストレーターに発注（この仕様書を渡す）
-3. 画像生成で下地→調整（スタイル固定のため見本1体を先に確定）
-> どの方法でも **まず1〜2体を“基準キャラ”として完成**させ、画風を固定してから量産。
+## 🧑‍🎨 制作方法：✅ 画像生成（決定）
+- **画像生成ツール**で作る（Midjourney / DALL·E / Stable Diffusion / Figma AI 等）。
+- **まずサンプル3体**（ミッキー／ちから／たま）を生成して **画風を固定** → その設定で量産。
+- コツ：**共通スタイル文（下記）を毎回 同じに**して、キャラ固有の差分だけ変える＝統一される。
+- 透明背景が要る場合：生成後に 背景除去、または「on plain white background」で出して切り抜き。
+
+### 🖼 画像生成プロンプト（基準3体・コピペ用）
+**共通スタイル（毎回先頭に固定で入れる）**
+```
+cute kawaii chibi character, ~2.5 heads tall, big rounded head, soft thick outlines,
+flat colors with gentle cel shading, warm pastel palette, cozy picture-book /
+Animal-Crossing-like wholesome style, full body, standing, front view, friendly,
+simple, centered, on plain white background, game NPC sprite
+```
+**ネガティブ（共通）**
+```
+realistic, photo, 3d render, scary, dark, gritty, complex background, text, logo,
+watermark, extra fingers, deformed, sexy, lowres
+```
+
+1) **ミッキー（こどもプーブリカ／60代女・あたたかい店主）**
+```
+<共通スタイル>, a kind cheerful grandma cafe owner in her 60s, short greyish hair,
+round glasses optional, apron, holding a coffee cup, warm orange theme color,
+gentle big smile, laugh lines, welcoming pose
+```
+2) **ちから（ちからこぶ／10代こども店長）**
+```
+<共通スタイル>, an energetic little boy shopkeeper (around 10), spiky hair,
+shop apron, holding penny candy, bright red theme color, proud confident grin,
+small and cute
+```
+3) **たま（エトラガラス／40代女・ニコニコのガラス作家）**
+```
+<共通スタイル>, a smiley homey female glass artist in her 40s, soft tied-back hair,
+apron, holding a sparkling glass bead/ornament, light aqua-blue theme color,
+warm happy expression
+```
+- 各キャラ **表情差分**は末尾に追記：`, happy expression` / `, surprised expression` / `, troubled expression`
+- 3体を見比べて **頭身・線の太さ・色のトーン・塗り**が揃っているか確認→揃ったら そのスタイル文で残りを量産
 
 ---
 
