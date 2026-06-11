@@ -21,8 +21,8 @@ def text(x, y, s, fs=15, fill="#222", anchor="middle", weight="normal"):
                  f'text-anchor="{anchor}" font-weight="{weight}" '
                  f'font-family="IPAGothic, sans-serif">{esc(s)}</text>')
 
-def box(x, y, w, h, label, fill, fs=14, sub=None, rx=10):
-    rect(x, y, w, h, fill, rx=rx)
+def box(x, y, w, h, label, fill, fs=14, sub=None, rx=10, dash=None, stroke="#5b5b5b"):
+    rect(x, y, w, h, fill, rx=rx, dash=dash, stroke=stroke)
     cx = x + w/2
     if sub:
         text(cx, y + h/2 - 4, label, fs=fs, weight="bold")
@@ -50,18 +50,19 @@ parts.append(f'<line x1="660" y1="120" x2="660" y2="{H-120}" stroke="#e6e0d2" st
 
 # ---- NORTH: しぜん ----
 text(660, 100, "── 北：しぜん（採集・つり） ──", fs=15, fill="#3a7d3a", weight="bold")
-box(90, 115, 240, 70, "こうえん", C_NAT, sub="採集・むし・休憩")
+box(90, 115, 240, 70, "プーブパーク（大きな公園）", C_NAT, fs=13, sub="採集・休憩・大イベント会場")
 box(545, 115, 230, 70, "池・川", C_NAT, sub="つり")
 box(990, 115, 240, 70, "はまべ", C_NAT, sub="貝・すな採集")
 
 # ---- CENTER: farm_site ----
 rect(455, 350, 410, 290, C_FARM, stroke="#5fa15c", rx=18, sw=3)
 text(660, 374, "みんなのうえん（広い敷地）", fs=16, weight="bold", fill="#2f7a2c")
-box(470, 388, 185, 40, "のらしごと屋", C_MAT, fs=12)
-box(680, 388, 170, 40, "もりもり肥料店", C_MAT, fs=12)
-box(540, 442, 240, 70, "★こどもプーブリカ", C_HUB, fs=16, sub="案内・掲示板・称号・朝市")
-box(470, 528, 180, 50, "ふんすい広場", "#fff2c2", fs=13, sub="イベント会場")
-box(665, 528, 185, 50, "畑（プレイヤー区画）", "#e7c79a", fs=12, sub="種まき→収穫")
+box(470, 386, 175, 34, "のらしごと屋", C_MAT, fs=11)
+box(660, 386, 175, 34, "もりもり肥料店", C_MAT, fs=11)
+box(540, 426, 240, 56, "★こどもプーブリカ", C_HUB, fs=15, sub="案内・掲示板・称号・朝市")
+box(555, 488, 210, 30, "ちからこぶ（駄菓子・こども店主）", "#ffe2a8", fs=11)
+box(470, 526, 175, 46, "ふんすい広場", "#fff2c2", fs=12, sub="イベント会場")
+box(660, 526, 175, 46, "畑（プレイヤー区画）", "#e7c79a", fs=11, sub="種まき→収穫")
 
 # ---- WEST: ものづくり ----
 text(235, 215, "── 西：ものづくり寄り ──", fs=15, fill="#6a4fb0", weight="bold")
@@ -90,7 +91,7 @@ box(885, 462, 345, 46, "トークウィズ チャイ屋は長屋へ（下段）"
 # ---- SOUTH: くらし＆住宅 ----
 text(660, 622, "── 南：くらし寄り＆住宅街（混然） ──", fs=15, fill="#2f6db0", weight="bold")
 box(60, 638, 560, 92, "プーブ商店街（大型アーケード／屋根付き）", C_ARC, fs=14,
-    sub="ブティックオキ｜ちからこぶ｜ヤミーマーケット｜文房具えんぴつ堂｜雑貨マルマル")
+    sub="ブティックオキ｜ヤミーマーケット｜文房具えんぴつ堂｜雑貨マルマル")
 box(650, 638, 250, 92, "長屋（3軒つながり）", C_NAGA, fs=13,
     sub="チャイ屋｜ナチュラルサンド｜本のすみか")
 box(930, 638, 300, 92, "2階建て（各階2軒）", C_NAGA, fs=13,
@@ -102,6 +103,16 @@ box(400, 752, 140, 56, "友達の家", C_HOME, fs=12, sub="(オンライン)")
 box(555, 752, 115, 56, "さんぽや", C_LIVE, fs=12, sub="街歩き案内")
 box(685, 752, 140, 56, "ツナグコーヒー", C_LIVE, fs=11, sub="休憩")
 box(840, 752, 150, 56, "美容室スミス", C_LIVE, fs=11, sub="髪型・夜DJ")
+
+# 空き物件・小公園の行（住宅街に点在）
+C_VAC="#eceae4"; C_SEC="#dfe9d6"
+text(60, 832, "空き物件・小公園（街のあちこちに点在）", fs=12, anchor="start", fill="#777", weight="bold")
+box(60, 842, 130, 48, "空き家①", C_VAC, fs=12, dash="6 4", stroke="#999", sub="改修→家/店")
+box(205, 842, 130, 48, "空き家②", C_VAC, fs=12, dash="6 4", stroke="#999", sub="猫がすみつき?")
+box(350, 842, 150, 48, "空き工場（大）", C_VAC, fs=11, dash="6 4", stroke="#999", sub="将来:大イベント")
+box(515, 842, 120, 48, "空き地①", C_VAC, fs=12, dash="6 4", stroke="#999", sub="→店/公園に")
+box(650, 842, 210, 48, "★シークレットガーデン", C_SEC, fs=12, dash="6 4", stroke="#6a9a5a", sub="ステータス：謎 ?")
+box(875, 842, 145, 48, "リカ公園（小）", C_NAT, fs=12, sub="ポケットパーク")
 
 # roving + signatures
 rect(1010, 752, 250, 56, "#fff", stroke="#bbb", rx=10)
