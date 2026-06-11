@@ -174,9 +174,13 @@
 |---|---|---|---|
 | hanayataifu | 花屋台ふ | れい | 固定位置なし。出現ポイントにランダム登場（§5） |
 
-### 空き物件・空き地（将来用・まちづくり・ミステリー）
+### 空き物件・空き地（まちづくり・発展度・ミステリー）
 > 街のあちこちに点在。今は使われていないが、**改修・イベント・隠し要素**の種。
 > ねらい「街を一緒に育てる」と相性◎（いえなり/おき/アンドソー/コトハナと連動）。
+>
+> 🏘 **発展度システム（`GAME_PLAN.md`§17-2b）と連動**：プレイヤーの貢献で街の発展度が
+> 上がると、空き物件が **vacant→renovating→done** と**再生して数が減り**、新しいお店/
+> 住居/広場に変わる→住人が喜ぶ。各物件は再生クエスト(C31〜C33等)や発展度の節目で変化。
 
 | ID | 名前 | 状態 | 役わり・将来案 |
 |---|---|---|---|
@@ -394,6 +398,23 @@ plant = {
   zukan: true,
 }
 // 全種記録 → 称号「しょくぶつはかせ」
+```
+
+### 3-4f. 街の発展度 / 空き物件の再生（townDev）
+```js
+townDev = {
+  level: 1, points: 0, nextThreshold: 100,
+  contributions: { clean, art, green, renovate, build, event, shop, quest },
+  milestones: [ { atLevel: 2, unlock: "renovate:vacant_house_1 -> shop" }, ... ],
+}
+// 空き物件は状態を持ち、発展度/再生クエストで変化
+vacantProperty = {
+  id, type:"house|factory|lot", pos,
+  state: "vacant",                 // -> "renovating" -> "done"
+  doneUse: "shop|home|park|hall",  // 再生後の用途
+  // done になると 建物/施設として有効化、住人セリフ・景観が更新、空き数が減る
+}
+// オンライン時は townDev を共有（友達の貢献も合算）
 ```
 
 ### 3-5. アイテム / クエスト（既存仕様と接続）
