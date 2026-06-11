@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1520" height="1140" viewBox="0 0 1520 1140">
 <rect x="0" y="0" width="1520" height="1140" rx="0" fill="#f4f7f4" stroke="none" stroke-width="0"/>
-<text x="760.0" y="38" font-size="24" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">プーブタウン ロケーションマップ（v2・全ロケ反映）</text>
+<text x="760.0" y="38" font-size="24" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">プーブタウン ロケーションマップ（v3）</text>
 <text x="760.0" y="62" font-size="13" fill="#555" text-anchor="middle" font-weight="normal" font-family="IPAGothic, sans-serif">ゆるテーマ＋住宅街に混然／中央=みんなのうえん敷地内にこどもプーブリカ／◇花屋台ふ・猫ウルフはランダム出現</text>
 <line x1="40" y1="790" x2="1480" y2="790" stroke="#e9e3d4" stroke-width="18"/>
 <line x1="760" y1="240" x2="760" y2="790" stroke="#e9e3d4" stroke-width="18"/>
@@ -33,7 +33,7 @@
 <rect x="40" y="250" width="480" height="520" rx="16" fill="#c9b3f0" stroke="#7a7a7a" stroke-width="2"/>
 <text x="54" y="274" font-size="15" fill="#333" text-anchor="start" font-weight="bold" font-family="IPAGothic, sans-serif">── 西：ものづくり・工場エリア ──</text>
 <rect x="54" y="290" width="198" height="30" rx="8" fill="#c9b3f0" stroke="#888" stroke-width="1.2"/>
-<text x="153.0" y="310.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">スーパースタジオ(巨大倉庫2F)</text>
+<text x="153.0" y="310.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">ミラクルスタジオ(巨大倉庫2F)</text>
 <rect x="260" y="290" width="132" height="30" rx="8" fill="#c9b3f0" stroke="#888" stroke-width="1.2"/>
 <text x="326.0" y="310.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">ネンシャ(デザイン)</text>
 <rect x="54" y="326" width="110" height="30" rx="8" fill="#c9b3f0" stroke="#888" stroke-width="1.2"/>
@@ -64,12 +64,12 @@
 <text x="260.0" y="454.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">倉庫2(顔A9)</text>
 <rect x="1000" y="250" width="480" height="520" rx="16" fill="#ff9b8a" stroke="#7a7a7a" stroke-width="2"/>
 <text x="1014" y="274" font-size="15" fill="#333" text-anchor="start" font-weight="bold" font-family="IPAGothic, sans-serif">── 東：たべもの・喫茶エリア ──</text>
-<rect x="1014" y="290" width="88" height="30" rx="8" fill="#ff9b8a" stroke="#888" stroke-width="1.2"/>
-<text x="1058.0" y="310.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">中華みんらく</text>
-<rect x="1110" y="290" width="209" height="30" rx="8" fill="#ff9b8a" stroke="#888" stroke-width="1.2"/>
-<text x="1214.5" y="310.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">オハラカレー&amp;BAR(壁画A22)</text>
-<rect x="1327" y="290" width="121" height="30" rx="8" fill="#ff9b8a" stroke="#888" stroke-width="1.2"/>
-<text x="1387.5" y="310.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">まるた食堂(朝市)</text>
+<rect x="1014" y="290" width="99" height="30" rx="8" fill="#ff9b8a" stroke="#888" stroke-width="1.2"/>
+<text x="1063.5" y="310.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">中華まんぷく軒</text>
+<rect x="1121" y="290" width="209" height="30" rx="8" fill="#ff9b8a" stroke="#888" stroke-width="1.2"/>
+<text x="1225.5" y="310.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">オハラカレー&amp;BAR(壁画A22)</text>
+<rect x="1338" y="290" width="121" height="30" rx="8" fill="#ff9b8a" stroke="#888" stroke-width="1.2"/>
+<text x="1398.5" y="310.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">まるた食堂(朝市)</text>
 <rect x="1014" y="326" width="110" height="30" rx="8" fill="#ff9b8a" stroke="#888" stroke-width="1.2"/>
 <text x="1069.0" y="346.0" font-size="11" fill="#222" text-anchor="middle" font-weight="bold" font-family="IPAGothic, sans-serif">家庭料理こもれび</text>
 <rect x="1132" y="326" width="110" height="30" rx="8" fill="#ff9b8a" stroke="#888" stroke-width="1.2"/>
