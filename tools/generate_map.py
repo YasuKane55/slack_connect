@@ -1,146 +1,118 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""プーブタウン 簡易俯瞰マップ(SVG)を生成する。
-配置ルール（farm_site中心/アーケード/長屋/2階建て/巨大倉庫/住宅街に混然）を反映。
-ラベルは日本語＝SVGテキストで出力（閲覧側フォントで描画）。
+"""プーブタウン 俯瞰マップ(SVG/PNG)を生成。
+クラスター(エリア)＋チップ(各ロケ)方式で、増えたロケーションを全部入れる。
+配置ルール反映：こどもプーブリカ=農園敷地内(+ちからこぶ)、商店街アーケード、
+長屋、2階建て、巨大倉庫スタジオ、ゆるテーマ＋住宅街に混然、空き物件、エキスペリファーム。
 """
 import html
 
-W, H = 1320, 1000
+W, H = 1520, 1140
 parts = []
-
 def esc(s): return html.escape(s)
 
-def rect(x, y, w, h, fill, stroke="#5b5b5b", rx=10, sw=2, dash=None):
+def rect(x,y,w,h,fill,stroke="#5b5b5b",rx=12,sw=2,dash=None):
     d = f' stroke-dasharray="{dash}"' if dash else ""
-    parts.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" '
-                 f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}"{d}/>')
-
-def text(x, y, s, fs=15, fill="#222", anchor="middle", weight="normal"):
-    parts.append(f'<text x="{x}" y="{y}" font-size="{fs}" fill="{fill}" '
-                 f'text-anchor="{anchor}" font-weight="{weight}" '
-                 f'font-family="IPAGothic, sans-serif">{esc(s)}</text>')
-
-def box(x, y, w, h, label, fill, fs=14, sub=None, rx=10, dash=None, stroke="#5b5b5b"):
-    rect(x, y, w, h, fill, rx=rx, dash=dash, stroke=stroke)
-    cx = x + w/2
-    if sub:
-        text(cx, y + h/2 - 4, label, fs=fs, weight="bold")
-        text(cx, y + h/2 + 14, sub, fs=fs-3, fill="#444")
-    else:
-        text(cx, y + h/2 + fs*0.35, label, fs=fs, weight="bold")
-
-def marker(x, y, s, fill):
-    parts.append(f'<circle cx="{x}" cy="{y}" r="9" fill="{fill}" stroke="#fff" stroke-width="2"/>')
-    text(x+14, y+5, s, fs=12, anchor="start", fill="#333")
+    parts.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{fill}" '
+                 f'stroke="{stroke}" stroke-width="{sw}"{d}/>')
+def text(x,y,s,fs=15,fill="#222",anchor="middle",weight="normal"):
+    parts.append(f'<text x="{x}" y="{y}" font-size="{fs}" fill="{fill}" text-anchor="{anchor}" '
+                 f'font-weight="{weight}" font-family="IPAGothic, sans-serif">{esc(s)}</text>')
 
 # palette
-C_HUB="#ffd27a"; C_FOOD="#ff9b8a"; C_CRAFT="#c9b3f0"; C_LIVE="#a9d3ff"
-C_NAT="#a7e0a7"; C_MAT="#d9d9d9"; C_HOME="#ffe98a"; C_ARC="#e0b483"
-C_FARM="#cdeccb"; C_NAGA="#ecd7b0"
+C_HUB="#ffce6a"; C_FOOD="#ff9b8a"; C_CRAFT="#c9b3f0"; C_LIVE="#a9d3ff"
+C_NAT="#a7e0a7"; C_MAT="#dddddd"; C_HOME="#ffe98a"; C_ARC="#e0b483"
+C_FARM="#cdeccb"; C_NAGA="#ecd7b0"; C_VAC="#e9e7e0"; C_SEC="#bfe6b0"; C_SENT="#bfe3e8"
 
-# background + title
+def chipw(label):
+    return min(300, len(label)*11 + 22)
+
+def zone(x,y,w,h,title,zfill,chips,zstroke="#7a7a7a"):
+    """chips: list of (label, color, dash?) """
+    rect(x,y,w,h,zfill,stroke=zstroke,rx=16,sw=2)
+    text(x+14, y+24, title, fs=15, weight="bold", anchor="start", fill="#333")
+    pad=14; cx=x+pad; cy=y+40; rowh=30
+    for chip in chips:
+        label, col = chip[0], chip[1]
+        dash = chip[2] if len(chip)>2 else None
+        cw=chipw(label)
+        if cx+cw > x+w-pad:
+            cx=x+pad; cy+=rowh+6
+        rect(cx, cy, cw, rowh, col, rx=8, sw=1.2, stroke="#888", dash=dash)
+        text(cx+cw/2, cy+rowh/2+5, label, fs=11, weight="bold")
+        cx += cw+8
+
+# bg + title
 rect(0,0,W,H,"#f4f7f4",stroke="none",rx=0,sw=0)
-text(W/2, 38, "プーブタウン 簡易俯瞰マップ（テーマはゆるく・住宅街に混然）", fs=24, weight="bold")
-text(W/2, 62, "中央＝みんなのうえん敷地内に こどもプーブリカ／◇花屋台ふ・猫ウルフは街じゅうにランダム出現", fs=14, fill="#555")
+text(W/2,38,"プーブタウン ロケーションマップ（v2・全ロケ反映）",fs=24,weight="bold")
+text(W/2,62,"ゆるテーマ＋住宅街に混然／中央=みんなのうえん敷地内にこどもプーブリカ／◇花屋台ふ・猫ウルフはランダム出現",fs=13,fill="#555")
 
-# subtle roads
-parts.append(f'<line x1="60" y1="500" x2="{W-60}" y2="500" stroke="#e6e0d2" stroke-width="22"/>')
-parts.append(f'<line x1="660" y1="120" x2="660" y2="{H-120}" stroke="#e6e0d2" stroke-width="22"/>')
+# roads (subtle)
+parts.append(f'<line x1="40" y1="790" x2="{W-40}" y2="790" stroke="#e9e3d4" stroke-width="18"/>')
+parts.append(f'<line x1="760" y1="240" x2="760" y2="790" stroke="#e9e3d4" stroke-width="18"/>')
 
-# ---- NORTH: しぜん ----
-text(660, 100, "── 北：しぜん（採集・つり） ──", fs=15, fill="#3a7d3a", weight="bold")
-box(90, 115, 240, 70, "プーブパーク（大きな公園）", C_NAT, fs=13, sub="採集・休憩・大イベント会場")
-box(545, 115, 230, 70, "池・川", C_NAT, sub="つり")
-box(990, 115, 240, 70, "はまべ", C_NAT, sub="貝・すな採集")
+# === NORTH: 海辺・しぜん ===
+zone(40,84,1440,150,"── 北：海辺・しぜん（採集/つり/壁画の名所）──",C_NAT,[
+ ("プーブパーク(大きな公園)",C_NAT),("リカ公園(小)",C_NAT),("池・川(つり)",C_NAT),
+ ("はまべ(貝/砂)",C_NAT),("防潮堤(壁画3枚 A3-5)",C_LIVE),("アート倉庫(屋上=宇宙服猫A11)",C_CRAFT),
+])
 
-# ---- CENTER: farm_site ----
-rect(455, 350, 410, 290, C_FARM, stroke="#5fa15c", rx=18, sw=3)
-text(660, 374, "みんなのうえん（広い敷地）", fs=16, weight="bold", fill="#2f7a2c")
-box(470, 386, 175, 34, "のらしごと屋", C_MAT, fs=11)
-box(660, 386, 175, 34, "もりもり肥料店", C_MAT, fs=11)
-box(540, 426, 240, 56, "★こどもプーブリカ", C_HUB, fs=15, sub="案内・掲示板・称号・朝市")
-box(555, 488, 210, 30, "ちからこぶ（駄菓子・こども店主）", "#ffe2a8", fs=11)
-box(470, 526, 175, 46, "ふんすい広場", "#fff2c2", fs=12, sub="イベント会場")
-box(660, 526, 175, 46, "畑（プレイヤー区画）", "#e7c79a", fs=11, sub="種まき→収穫")
+# === CENTER: みんなのうえん敷地 ===
+zone(545,250,420,250,"★中央：みんなのうえん（敷地）",C_FARM,[
+ ("★こどもプーブリカ(+ちからこぶ)",C_HUB),("ふんすい広場",C_HOME),
+ ("畑(プレイヤー区画)",C_ARC),("のらしごと屋",C_MAT),("もりもり肥料店",C_MAT),
+ ("畑アート A15/A17",C_CRAFT),
+],zstroke="#5fa15c")
 
-# ---- WEST: ものづくり ----
-text(235, 215, "── 西：ものづくり寄り ──", fs=15, fill="#6a4fb0", weight="bold")
-box(60, 230, 360, 95, "スーパースタジオ（巨大倉庫・2階建て）", C_CRAFT, fs=14,
-    sub="1F:モク/ヤタ/マイム/ダイナ ＋DJ  2F:エイ/いろ/パシャ/ぐらこ/ウェブ/ケンチ")
-box(60, 340, 110, 48, "ネンシャ", C_CRAFT, fs=12, sub="デザイン")
-box(180, 340, 110, 48, "コトハナ", C_CRAFT, fs=12, sub="店メンター")
-box(300, 340, 120, 48, "ドットアーキ", C_CRAFT, fs=12, sub="建築")
-box(60, 400, 175, 46, "塗装アート アンドソー", C_CRAFT, fs=11, sub="地域・清掃")
-box(60, 460, 85, 44, "工具", C_MAT, fs=12)
-box(155, 460, 85, 44, "金具", C_MAT, fs=12)
-box(250, 460, 85, 44, "木材", C_MAT, fs=12)
-box(60, 514, 175, 40, "工作材料 ぺたぺた堂", C_MAT, fs=11)
+# === WEST: ものづくり・工場 ===
+zone(40,250,480,520,"── 西：ものづくり・工場エリア ──",C_CRAFT,[
+ ("スーパースタジオ(巨大倉庫2F)",C_CRAFT),("ネンシャ(デザイン)",C_CRAFT),("コトハナ(企画)",C_CRAFT),
+ ("ドットアーキ(建築)",C_CRAFT),("塗装アート アンドソー",C_CRAFT),
+ ("工具",C_MAT),("金具",C_MAT),("木材",C_MAT),("工作材料",C_MAT),
+ ("家具工場(壁画A13)",C_MAT),("工場1(壁画A31=P)",C_MAT),("工場2(汽車A18)",C_MAT),
+ ("工場3(タイポA19)",C_MAT),("倉庫2(顔A9)",C_MAT),
+])
 
-# ---- EAST: たべもの ----
-text(1045, 215, "── 東：たべもの寄り ──", fs=15, fill="#c0503a", weight="bold")
-box(885, 230, 150, 46, "中華みんらく", C_FOOD, fs=12)
-box(1055, 230, 175, 46, "オハラカレー&BAR", C_FOOD, fs=11)
-box(885, 288, 150, 46, "まるた食堂", C_FOOD, fs=12)
-box(1055, 288, 175, 46, "家庭料理こもれび", C_FOOD, fs=11)
-box(885, 346, 150, 46, "八百屋", C_NAT, fs=12, sub="生鮮")
-box(1055, 346, 175, 46, "たこやき たこ天", C_FOOD, fs=11)
-box(885, 404, 345, 46, "純喫茶こはく", C_FOOD, fs=12, sub="レトロ喫茶・昔話")
-box(885, 462, 345, 46, "トークウィズ チャイ屋は長屋へ（下段）", "#eef0ee", fs=11)
+# === EAST: たべもの・喫茶 ===
+zone(1000,250,480,520,"── 東：たべもの・喫茶エリア ──",C_FOOD,[
+ ("中華みんらく",C_FOOD),("オハラカレー&BAR(壁画A22)",C_FOOD),("まるた食堂(朝市)",C_FOOD),
+ ("家庭料理こもれび",C_FOOD),("ナチュラルサンド",C_FOOD),("八百屋おやさい本舗",C_NAT),
+ ("たこやき たこ天",C_FOOD),("純喫茶こはく",C_FOOD),("ツナグコーヒー",C_LIVE),
+ ("長屋:チャイ/サンド/本のすみか(壁画A29)",C_NAGA),
+])
 
-# ---- SOUTH: くらし＆住宅 ----
-text(660, 622, "── 南：くらし寄り＆住宅街（混然） ──", fs=15, fill="#2f6db0", weight="bold")
-box(60, 638, 560, 92, "プーブ商店街（大型アーケード／屋根付き）", C_ARC, fs=14,
-    sub="ブティックオキ｜ヤミーマーケット｜文房具えんぴつ堂｜雑貨マルマル")
-box(650, 638, 250, 92, "長屋（3軒つながり）", C_NAGA, fs=13,
-    sub="チャイ屋｜ナチュラルサンド｜本のすみか")
-box(930, 638, 300, 92, "2階建て（各階2軒）", C_NAGA, fs=13,
-    sub="1F イエコーヒー・サンセール / 2F エトラガラス・美容室シー")
+# === VACANT: 空き物件・ひみつ（中央下） ===
+zone(545,515,420,255,"── 空き物件・ひみつ（まちづくり/探究）──",C_VAC,[
+ ("空き家②(A24)",C_VAC,"5 4"),("空き家③(A25)",C_VAC,"5 4"),("空き地①(A23)",C_VAC,"5 4"),
+ ("大きな空き地(A26)",C_VAC,"5 4"),("空き工場(A7)",C_VAC,"5 4"),
+ ("★シークレットガーデン=エキスペリファーム",C_SEC,"5 4"),
+])
 
-box(60, 752, 150, 56, "プレイヤーの家", C_HOME, fs=12, sub="ねる・部屋づくり")
-box(225, 752, 160, 56, "自分のお店", C_HOME, fs=12, sub="空き店舗→開業")
-box(400, 752, 140, 56, "友達の家", C_HOME, fs=12, sub="(オンライン)")
-box(555, 752, 115, 56, "さんぽや", C_LIVE, fs=12, sub="街歩き案内")
-box(685, 752, 140, 56, "ツナグコーヒー", C_LIVE, fs=11, sub="休憩")
-box(840, 752, 150, 56, "美容室スミス", C_LIVE, fs=11, sub="髪型・夜DJ")
+# === SOUTH: くらし・商店街・住宅 ===
+zone(40,795,1440,235,"── 南：くらし・商店街・住宅エリア（混然）──",C_LIVE,[
+ ("プーブ商店街(アーケード):オキ/ヤミー/文房具/雑貨",C_ARC),
+ ("2階建て:イエ/サンセール/エトラ/美容室シー",C_NAGA),
+ ("美容室スミス(夜DJ)",C_LIVE),("寿楽温泉(銭湯)",C_SENT),("さんぽや(街歩き案内)",C_LIVE),
+ ("ビル1(ロボA28)",C_LIVE),("マンション(A6前/A20壁)",C_LIVE),
+ ("住宅1(A16)",C_HOME),("住宅2(お皿A27)",C_HOME),("住宅3(A30)",C_HOME),("住宅4(A21)",C_HOME),
+ ("プレイヤーの家",C_HOME),("友達の家(オンライン)",C_HOME),("自分のお店(空き店舗→開業)",C_HOME),
+])
 
-# 空き物件・小公園の行（住宅街に点在）
-C_VAC="#eceae4"; C_SEC="#dfe9d6"
-text(60, 832, "空き物件・小公園（街のあちこちに点在）", fs=12, anchor="start", fill="#777", weight="bold")
-box(60, 842, 130, 48, "空き家①", C_VAC, fs=12, dash="6 4", stroke="#999", sub="改修→家/店")
-box(205, 842, 130, 48, "空き家②", C_VAC, fs=12, dash="6 4", stroke="#999", sub="猫がすみつき?")
-box(350, 842, 150, 48, "空き工場（大）", C_VAC, fs=11, dash="6 4", stroke="#999", sub="将来:大イベント")
-box(515, 842, 120, 48, "空き地①", C_VAC, fs=12, dash="6 4", stroke="#999", sub="→店/公園に")
-box(650, 842, 210, 48, "★シークレットガーデン", C_SEC, fs=12, dash="6 4", stroke="#6a9a5a", sub="ステータス：謎 ?")
-box(875, 842, 145, 48, "リカ公園（小）", C_NAT, fs=12, sub="ポケットパーク")
-
-# roving + signatures
-rect(1010, 752, 250, 56, "#fff", stroke="#bbb", rx=10)
-text(1135, 773, "◇花屋台ふ／猫ウルフ", fs=13, weight="bold")
-text(1135, 792, "街じゅうにランダム出現", fs=11, fill="#666")
-
-# art & cat scatter markers（道や余白に配置・箱と重ねない）
-for (x,y) in [(435,160),(770,150),(300,595),(1010,595),(645,330),(60,595)]:
-    marker(x,y,"アート作品", "#e76f9e")
-for (x,y) in [(560,605),(440,300),(905,600),(1085,205)]:
-    marker(x,y,"主猫", "#7a5c3a")
-
+# floating: roving + collectibles note
+rect(40,1048,1440,72,"#fff",stroke="#ccc",rx=12)
+text(60,1072,"◇ 花屋台ふ／猫ウルフ ＝街じゅうにランダム出現",fs=13,weight="bold",anchor="start")
+text(60,1096,"● 収集は街じゅうに散在：アート31点 / 猫(ウルフ+主猫) / マンホール10 / 植物(公園・うえん・植木鉢・ベランダぶどう・空き地果物)",fs=12,anchor="start",fill="#555")
 # legend
-ly = H-58
-text(60, ly-8, "凡例：", fs=14, weight="bold", anchor="start")
-leg = [("ハブ",C_HUB),("たべもの",C_FOOD),("ものづくり/デザイン",C_CRAFT),
-       ("くらし/お店",C_LIVE),("しぜん/農",C_NAT),("材料店",C_MAT),
-       ("住宅",C_HOME),("商店街",C_ARC),("長屋/2階建て",C_NAGA)]
-x = 110
+lx=900
+text(lx,1072,"凡例:",fs=12,weight="bold",anchor="start")
+leg=[("ハブ",C_HUB),("食",C_FOOD),("ものづくり",C_CRAFT),("くらし",C_LIVE),
+     ("しぜん",C_NAT),("材料/工場",C_MAT),("住宅",C_HOME),("商店街/長屋",C_ARC),
+     ("温泉",C_SENT),("空き(点線)",C_VAC),("探究農園",C_SEC)]
+x=lx+48
 for name,col in leg:
-    rect(x, ly-22, 22, 16, col, rx=4, sw=1)
-    text(x+28, ly-9, name, fs=12, anchor="start")
-    x += 38 + len(name)*15
-marker(x+10, ly-14, "アート作品", "#e76f9e"); x += 150
-marker(x+10, ly-14, "主猫", "#7a5c3a")
+    rect(x,1062,18,14,col,rx=4,sw=1); text(x+22,1074,name,fs=11,anchor="start"); x+=40+len(name)*12
 
-svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
-       f'viewBox="0 0 {W} {H}">\n' + "\n".join(parts) + "\n</svg>\n")
-with open("map_puubtown.svg", "w", encoding="utf-8") as f:
-    f.write(svg)
+svg=(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">\n'
+     + "\n".join(parts) + "\n</svg>\n")
+open("map_puubtown.svg","w",encoding="utf-8").write(svg)
 print("wrote map_puubtown.svg")
