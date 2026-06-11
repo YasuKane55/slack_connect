@@ -227,6 +227,18 @@
 - **全10個コンプで称号**（例「マンホールマスター」）。歩いて探す動機＝探検と相性◎
 - 道路・路地・広場・商店街の足元など、見落としやすい場所に配置すると“発見”がうれしい
 
+### 🌿 植物（観察・図鑑要素）
+- 街じゅうの **植物を見つけて記録**（植物図鑑）。しぜん観察の“好き”の入口
+- 見られる場所：
+  - 🌳 **プーブパーク/リカ公園**：木・草花・どんぐり等
+  - 🌱 **みんなのうえん**：野菜・育てている作物
+  - 🌼 **街中**：道ばたの草花・街路樹
+  - 🪴 **住宅の前の植木鉢**：家ごとの鉢植え（種類いろいろ）
+  - 🍇 **ベランダ栽培のぶどう**（マンション/住宅のベランダ）
+  - 🍊 **空き地で育つ果物**（だれかが育ててる果樹など）
+- **季節/時間帯で変化**（花が咲く・実がなる）。実るものは収穫→料理/おすそ分けにも
+- 全種記録で称号（例「しょくぶつはかせ」）。採集・農業・料理とつながる
+
 #### 主猫（ぬし猫）一覧 ※名前は仮案・自由に変更可
 | 猫(案) | 拠点 | 見た目案 |
 |---|---|---|
@@ -298,22 +310,31 @@ building = {
 npc = {
   id, name, age, gender,
   dialectLevel: 1,                  // 大阪弁度(1-3) ※後で設定
-  role: "shopkeeper|kid|guide|...",
+  role: "shopkeeper|townsfolk|kid|guide|...",
+  behavior: "schedule|wander|resident|roving",  // ★街の人=wander(自由徘徊)
   shopId,                            // 店番ならお店
-  schedule: [                        // 時間帯ごとの居場所
-    { time:"asa",  pos, building },
-    { time:"hiru", pos, building }, ...
+  wanderArea,                        // behavior=wander のとき歩き回る範囲(任意)
+  schedule: [ { time:"asa", pos, building }, ... ],  // 時間帯ごとの居場所(ゆるく)
+  dialogue: { asa, hiru, yu, yoru, idle:[...], friend:[...], questOffer, questDone },
+  hints: [                           // ★ヒント(状況で出し分け・RPG要素)
+    { topic:"art|cat|manhole|plant|mushi|quest|secret|shortcut",
+      condition, text }
   ],
-  dialogue: {                        // CHARACTERS_CONTENT.md から流し込む
-    asa, hiru, yu, yoru,
-    idle: [...], friend: [...], questOffer, questDone
-  },
-  likes: [itemId...],                // すきなもの→仲良し度UP
+  likes: [itemId...],
   friendship: { level:0, max:5, rewardsByLevel:{...} },
-  questIds: [...],
+  quests: [                          // ★条件付きクエスト発注
+    { questId, condition }           // conditionを満たすと会話で受注可
+  ],
+}
+
+// クエスト発注の condition（§GAME_PLAN 10-2）
+condition = {
+  titles:[...], skills:[...], friendshipMin, doneQuests:[...],
+  timeOfDay:[...], weekday:[...], hasItems:{...}, zukanProgress:{...}
 }
 ```
 - ※ こどもプーブリカは **店主が日替わり**：`hostByDay = [mickey, hinako]`（day%2で交代）
+- ※ **街の人(townsfolk)** は `behavior:"wander"`。話すと hints / 条件付き quests を提供
 
 ### 3-4. 移動NPC（花屋台ふ）
 ```js
@@ -361,6 +382,18 @@ manhole = {
   // 配置は固定の隠しスポット推奨。起動時シャッフルも可(spawnNodesから10点抽選)
 }
 // 全10種 found → 称号「マンホールマスター」
+```
+
+### 3-4e. 植物（plant・観察/収集）
+```js
+plant = {
+  id, name, kind:"flower|tree|veggie|fruit|potted|vine",
+  spot: "park|farm|street|potted_house|balcony|vacant_lot",
+  pos, season:[...], timeOfDay:[...],   // いつ見られるか
+  harvestable: false,                    // 実る→収穫(りんご/ぶどう/果物)
+  zukan: true,
+}
+// 全種記録 → 称号「しょくぶつはかせ」
 ```
 
 ### 3-5. アイテム / クエスト（既存仕様と接続）
@@ -420,6 +453,8 @@ building.isOpen = timeOfDay ∈ building.openHours
 - [ ] **アート作品**の配置点・作者・名前リスト（アート図鑑用）
 - [ ] **拠点の主猫**の名前・見た目の確定＋ウルフの出現ノード（ねこ図鑑用）
 - [ ] **ぷーぶ君マンホール10個**の配置点（or 出現ノード）＋10種デザイン（マンホール図鑑用）
+- [ ] **植物**の種類リスト＋見られる場所/季節（公園/うえん/街中/植木鉢/ベランダぶどう/空き地果物）
+- [ ] **街の人(ふらふらNPC)** の徘徊範囲・ヒント・条件付きクエストの設定
 
 ---
 
